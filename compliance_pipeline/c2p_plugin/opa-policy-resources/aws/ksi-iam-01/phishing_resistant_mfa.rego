@@ -16,7 +16,7 @@ import data.lib.terraform
 import future.keywords.in
 
 # Configurable parameters (injected via Jinja2)
-require_hardware_mfa := {{ require_hardware_mfa | default('false') }}
+require_hardware_mfa := false
 
 # Warn: IAM user created without MFA device in same plan
 # (Note: MFA typically configured after user creation, so this is a warning)

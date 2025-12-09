@@ -17,8 +17,8 @@ import data.lib.terraform
 import future.keywords.in
 
 # Configurable parameters (injected via Jinja2)
-require_rotation := {{ require_rotation | default('true') }}
-max_rotation_days := {{ max_rotation_days | default('90') }}
+require_rotation := true
+max_rotation_days := 90
 
 # Deny: Secrets Manager secret without KMS encryption
 deny[msg] {

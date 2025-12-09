@@ -16,10 +16,10 @@ import future.keywords.in
 
 # Configurable parameters (injected via Jinja2)
 # Default: Only allow traffic from private RFC 1918 ranges
-allowed_ingress_cidrs := {{ allowed_ingress_cidrs | default('["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]') | safe }}
+allowed_ingress_cidrs := ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
 
 # Ports that are allowed from public internet (e.g., HTTPS only)
-allowed_public_ports := {{ allowed_public_ports | default('[443]') | safe }}
+allowed_public_ports := [443]
 
 # Deny: Security group rules with unrestricted ingress
 deny[msg] {
