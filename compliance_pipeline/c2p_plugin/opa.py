@@ -296,19 +296,35 @@ class PluginOPA(PluginSpec):
                     'metadata': warning.get('metadata', {}),
                 })
 
-            # Process successes
-            for success in file_result.get('successes', []):
-                policy_name = self._extract_policy_name_from_conftest(success)
-                if policy_name not in grouped:
-                    grouped[policy_name] = []
-                grouped[policy_name].append({
-                    'status': 'pass',
-                    'message': success.get('msg', 'Policy passed'),
-                    'resource_id': 'all',
-                    'resource_type': 'terraform_resource',
-                    'filename': filename,
-                    'metadata': success.get('metadata', {}),
-                })
+            # Process successes (Conftest may return int count or list)
+            successes = file_result.get('successes', [])
+            if isinstance(successes, int):
+                # Conftest returns success count as int, not a list
+                # We can't extract individual pass messages, just note the count
+                if successes > 0:
+                    if 'passed' not in grouped:
+                        grouped['passed'] = []
+                    grouped['passed'].append({
+                        'status': 'pass',
+                        'message': f'{successes} policies passed',
+                        'resource_id': 'all',
+                        'resource_type': 'terraform_resource',
+                        'filename': filename,
+                        'metadata': {},
+                    })
+            elif isinstance(successes, list):
+                for success in successes:
+                    policy_name = self._extract_policy_name_from_conftest(success)
+                    if policy_name not in grouped:
+                        grouped[policy_name] = []
+                    grouped[policy_name].append({
+                        'status': 'pass',
+                        'message': success.get('msg', 'Policy passed'),
+                        'resource_id': 'all',
+                        'resource_type': 'terraform_resource',
+                        'filename': filename,
+                        'metadata': success.get('metadata', {}),
+                    })
 
         return grouped
 
