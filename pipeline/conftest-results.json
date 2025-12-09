@@ -1,0 +1,32 @@
+[
+	{
+		"filename": "terraform/aws/non-compliant/tfplan.json",
+		"namespace": "lib.terraform",
+		"successes": 0
+	},
+	{
+		"filename": "terraform/aws/non-compliant/tfplan.json",
+		"namespace": "ksi.cna01.aws",
+		"successes": 4
+	},
+	{
+		"filename": "terraform/aws/non-compliant/tfplan.json",
+		"namespace": "ksi.iam01.aws",
+		"successes": 5
+	},
+	{
+		"filename": "terraform/aws/non-compliant/tfplan.json",
+		"namespace": "ksi.svc02.aws",
+		"successes": 9
+	},
+	{
+		"filename": "terraform/aws/non-compliant/tfplan.json",
+		"namespace": "ksi.svc06.aws",
+		"successes": 9
+	},
+	{
+		"filename": "terraform/aws/non-compliant/tfplan.json",
+		"namespace": "lib.helpers",
+		"successes": 0
+	}
+]
