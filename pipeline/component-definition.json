@@ -1,0 +1,499 @@
+{
+  "component-definition": {
+    "uuid": "ea5c7fcc-4384-4034-8bb9-34f1e20bd46c",
+    "metadata": {
+      "title": "FedRAMP 20x OPA",
+      "last-modified": "2025-12-08T04:15:08+00:00",
+      "version": "1.0",
+      "oscal-version": "1.1.3"
+    },
+    "components": [
+      {
+        "uuid": "ce4b0a6f-15fe-44e2-9253-34904a71bf29",
+        "type": "Service",
+        "title": "AWS Cloud Infrastructure",
+        "description": "Multi-cloud infrastructure security controls for AWS",
+        "props": [
+          {
+            "name": "Rule_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "ksi-cna-01",
+            "remarks": "rule_set_0"
+          },
+          {
+            "name": "Rule_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "Restrict network traffic to only traffic from vetted locations or resources",
+            "remarks": "rule_set_0"
+          },
+          {
+            "name": "Parameter_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "allowed_ingress_cidrs",
+            "remarks": "rule_set_0"
+          },
+          {
+            "name": "Parameter_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "CIDR blocks allowed for network ingress traffic",
+            "remarks": "rule_set_0"
+          },
+          {
+            "name": "Parameter_Value_Alternatives",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "[\"10.0.0.0/8\"]",
+            "remarks": "rule_set_0"
+          },
+          {
+            "name": "Check_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "ksi-cna-01-check",
+            "remarks": "rule_set_0"
+          },
+          {
+            "name": "Check_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "Validates security groups and VPCs restrict network traffic to vetted sources",
+            "remarks": "rule_set_0"
+          },
+          {
+            "name": "Fetcher_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "conftest-terraform",
+            "remarks": "rule_set_0"
+          },
+          {
+            "name": "Fetcher_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "Conftest validates Terraform plans against OPA policies",
+            "remarks": "rule_set_0"
+          },
+          {
+            "name": "Rule_Implementation_Status",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "IMPLEMENTED",
+            "remarks": "rule_set_0"
+          },
+          {
+            "name": "Rule_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "ksi-svc-02",
+            "remarks": "rule_set_1"
+          },
+          {
+            "name": "Rule_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "Protect data in transit using encryption (TLS 1.2+)",
+            "remarks": "rule_set_1"
+          },
+          {
+            "name": "Parameter_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "minimum_tls_version",
+            "remarks": "rule_set_1"
+          },
+          {
+            "name": "Parameter_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "Minimum TLS version required for encrypted communications",
+            "remarks": "rule_set_1"
+          },
+          {
+            "name": "Parameter_Value_Alternatives",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "TLSv1.2",
+            "remarks": "rule_set_1"
+          },
+          {
+            "name": "Check_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "ksi-svc-02-check",
+            "remarks": "rule_set_1"
+          },
+          {
+            "name": "Check_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "Validates load balancers and CloudFront use HTTPS with TLS 1.2+",
+            "remarks": "rule_set_1"
+          },
+          {
+            "name": "Fetcher_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "conftest-terraform",
+            "remarks": "rule_set_1"
+          },
+          {
+            "name": "Fetcher_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "Conftest validates Terraform plans against OPA policies",
+            "remarks": "rule_set_1"
+          },
+          {
+            "name": "Rule_Implementation_Status",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "IMPLEMENTED",
+            "remarks": "rule_set_1"
+          },
+          {
+            "name": "Rule_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "ksi-iam-01",
+            "remarks": "rule_set_2"
+          },
+          {
+            "name": "Rule_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "Require phishing-resistant multi-factor authentication for all interactive user accounts",
+            "remarks": "rule_set_2"
+          },
+          {
+            "name": "Parameter_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "require_hardware_mfa",
+            "remarks": "rule_set_2"
+          },
+          {
+            "name": "Parameter_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "Require hardware MFA devices instead of virtual MFA",
+            "remarks": "rule_set_2"
+          },
+          {
+            "name": "Parameter_Value_Alternatives",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "false",
+            "remarks": "rule_set_2"
+          },
+          {
+            "name": "Check_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "ksi-iam-01-check",
+            "remarks": "rule_set_2"
+          },
+          {
+            "name": "Check_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "Validates IAM policies require MFA for sensitive actions",
+            "remarks": "rule_set_2"
+          },
+          {
+            "name": "Fetcher_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "conftest-terraform",
+            "remarks": "rule_set_2"
+          },
+          {
+            "name": "Fetcher_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "Conftest validates Terraform plans against OPA policies",
+            "remarks": "rule_set_2"
+          },
+          {
+            "name": "Rule_Implementation_Status",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "IMPLEMENTED",
+            "remarks": "rule_set_2"
+          },
+          {
+            "name": "Rule_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "ksi-svc-06",
+            "remarks": "rule_set_3"
+          },
+          {
+            "name": "Rule_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "Manage and protect secrets using a dedicated secrets management solution",
+            "remarks": "rule_set_3"
+          },
+          {
+            "name": "Parameter_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "require_rotation",
+            "remarks": "rule_set_3"
+          },
+          {
+            "name": "Parameter_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "Require automatic rotation for secrets",
+            "remarks": "rule_set_3"
+          },
+          {
+            "name": "Parameter_Value_Alternatives",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "true",
+            "remarks": "rule_set_3"
+          },
+          {
+            "name": "Check_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "ksi-svc-06-check",
+            "remarks": "rule_set_3"
+          },
+          {
+            "name": "Check_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "Validates secrets use KMS encryption and rotation is configured",
+            "remarks": "rule_set_3"
+          },
+          {
+            "name": "Fetcher_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "conftest-terraform",
+            "remarks": "rule_set_3"
+          },
+          {
+            "name": "Fetcher_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "Conftest validates Terraform plans against OPA policies",
+            "remarks": "rule_set_3"
+          },
+          {
+            "name": "Rule_Implementation_Status",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "IMPLEMENTED",
+            "remarks": "rule_set_3"
+          }
+        ],
+        "control-implementations": [
+          {
+            "uuid": "1c02a5f4-542e-4e08-88ce-d0f392831ef3",
+            "source": "https://www.fedramp.gov/20x/key-security-indicators/",
+            "description": "FedRAMP 20x Key Security Indicators",
+            "set-parameters": [
+              {
+                "param-id": "allowed_ingress_cidrs",
+                "values": [
+                  "[\"10.0.0.0/8\"",
+                  "\"172.16.0.0/12\"",
+                  "\"192.168.0.0/16\"]"
+                ]
+              },
+              {
+                "param-id": "minimum_tls_version",
+                "values": [
+                  "TLSv1.2"
+                ]
+              },
+              {
+                "param-id": "require_hardware_mfa",
+                "values": [
+                  "false"
+                ]
+              },
+              {
+                "param-id": "require_rotation",
+                "values": [
+                  "true"
+                ]
+              }
+            ],
+            "implemented-requirements": [
+              {
+                "uuid": "c34442be-e1fb-4aec-a353-eed629e2b88d",
+                "control-id": "KSI-CNA-01",
+                "description": "",
+                "props": [
+                  {
+                    "name": "Rule_Id",
+                    "ns": "http://fedramp.gov/ns/opa",
+                    "value": "ksi-cna-01"
+                  }
+                ]
+              },
+              {
+                "uuid": "0ff238bb-13d3-49d5-b035-b28626266ce8",
+                "control-id": "KSI-SVC-02",
+                "description": "",
+                "props": [
+                  {
+                    "name": "Rule_Id",
+                    "ns": "http://fedramp.gov/ns/opa",
+                    "value": "ksi-svc-02"
+                  }
+                ]
+              },
+              {
+                "uuid": "82398c43-1554-49e0-b2ff-61b4eb377ea8",
+                "control-id": "KSI-IAM-01",
+                "description": "",
+                "props": [
+                  {
+                    "name": "Rule_Id",
+                    "ns": "http://fedramp.gov/ns/opa",
+                    "value": "ksi-iam-01"
+                  }
+                ]
+              },
+              {
+                "uuid": "363626fb-2f36-4152-8b76-8f935b524fe6",
+                "control-id": "KSI-SVC-06",
+                "description": "",
+                "props": [
+                  {
+                    "name": "Rule_Id",
+                    "ns": "http://fedramp.gov/ns/opa",
+                    "value": "ksi-svc-06"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "uuid": "4203902e-8fa0-41ae-8229-f1a2a8995c69",
+        "type": "Validation",
+        "title": "OPA",
+        "description": "Open Policy Agent as Policy Validation Point for Terraform",
+        "props": [
+          {
+            "name": "Rule_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "ksi-cna-01",
+            "remarks": "rule_set_4"
+          },
+          {
+            "name": "Check_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "ksi-cna-01-check",
+            "remarks": "rule_set_4"
+          },
+          {
+            "name": "Check_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "Validates security groups and VPCs restrict network traffic to vetted sources",
+            "remarks": "rule_set_4"
+          },
+          {
+            "name": "Fetcher_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "conftest-terraform",
+            "remarks": "rule_set_4"
+          },
+          {
+            "name": "Fetcher_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "Conftest validates Terraform plans against OPA policies",
+            "remarks": "rule_set_4"
+          },
+          {
+            "name": "Rule_Implementation_Status",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "IMPLEMENTED",
+            "remarks": "rule_set_4"
+          },
+          {
+            "name": "Rule_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "ksi-svc-02",
+            "remarks": "rule_set_5"
+          },
+          {
+            "name": "Check_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "ksi-svc-02-check",
+            "remarks": "rule_set_5"
+          },
+          {
+            "name": "Check_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "Validates load balancers and CloudFront use HTTPS with TLS 1.2+",
+            "remarks": "rule_set_5"
+          },
+          {
+            "name": "Fetcher_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "conftest-terraform",
+            "remarks": "rule_set_5"
+          },
+          {
+            "name": "Fetcher_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "Conftest validates Terraform plans against OPA policies",
+            "remarks": "rule_set_5"
+          },
+          {
+            "name": "Rule_Implementation_Status",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "IMPLEMENTED",
+            "remarks": "rule_set_5"
+          },
+          {
+            "name": "Rule_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "ksi-iam-01",
+            "remarks": "rule_set_6"
+          },
+          {
+            "name": "Check_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "ksi-iam-01-check",
+            "remarks": "rule_set_6"
+          },
+          {
+            "name": "Check_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "Validates IAM policies require MFA for sensitive actions",
+            "remarks": "rule_set_6"
+          },
+          {
+            "name": "Fetcher_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "conftest-terraform",
+            "remarks": "rule_set_6"
+          },
+          {
+            "name": "Fetcher_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "Conftest validates Terraform plans against OPA policies",
+            "remarks": "rule_set_6"
+          },
+          {
+            "name": "Rule_Implementation_Status",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "IMPLEMENTED",
+            "remarks": "rule_set_6"
+          },
+          {
+            "name": "Rule_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "ksi-svc-06",
+            "remarks": "rule_set_7"
+          },
+          {
+            "name": "Check_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "ksi-svc-06-check",
+            "remarks": "rule_set_7"
+          },
+          {
+            "name": "Check_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "Validates secrets use KMS encryption and rotation is configured",
+            "remarks": "rule_set_7"
+          },
+          {
+            "name": "Fetcher_Id",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "conftest-terraform",
+            "remarks": "rule_set_7"
+          },
+          {
+            "name": "Fetcher_Description",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "Conftest validates Terraform plans against OPA policies",
+            "remarks": "rule_set_7"
+          },
+          {
+            "name": "Rule_Implementation_Status",
+            "ns": "http://fedramp.gov/ns/opa",
+            "value": "IMPLEMENTED",
+            "remarks": "rule_set_7"
+          }
+        ],
+        "control-implementations": []
+      }
+    ]
+  }
+}

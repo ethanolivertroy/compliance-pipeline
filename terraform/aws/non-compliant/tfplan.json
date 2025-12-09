@@ -1,0 +1,206 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.6.0",
+  "resource_changes": [
+    {
+      "address": "aws_vpc.insecure",
+      "type": "aws_vpc",
+      "name": "insecure",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "cidr_block": "10.0.0.0/16",
+          "id": "vpc-12345"
+        }
+      }
+    },
+    {
+      "address": "aws_security_group.insecure_ssh",
+      "type": "aws_security_group",
+      "name": "insecure_ssh",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "name": "insecure-ssh-sg",
+          "vpc_id": "vpc-12345",
+          "ingress": [
+            {
+              "description": "SSH from anywhere",
+              "from_port": 22,
+              "to_port": 22,
+              "protocol": "tcp",
+              "cidr_blocks": ["0.0.0.0/0"]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "aws_security_group.insecure_rdp",
+      "type": "aws_security_group",
+      "name": "insecure_rdp",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "name": "insecure-rdp-sg",
+          "vpc_id": "vpc-12345",
+          "ingress": [
+            {
+              "description": "RDP from anywhere",
+              "from_port": 3389,
+              "to_port": 3389,
+              "protocol": "tcp",
+              "cidr_blocks": ["0.0.0.0/0"]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "aws_lb_listener.http_no_redirect",
+      "type": "aws_lb_listener",
+      "name": "http_no_redirect",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "port": 8080,
+          "protocol": "HTTP",
+          "default_action": [
+            {
+              "type": "forward",
+              "target_group_arn": "arn:aws:elasticloadbalancing:us-east-1:123456789:targetgroup/tg/123"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "aws_lb_listener.weak_tls",
+      "type": "aws_lb_listener",
+      "name": "weak_tls",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "port": 443,
+          "protocol": "HTTPS",
+          "ssl_policy": "ELBSecurityPolicy-TLS-1-0-2015-04",
+          "certificate_arn": "arn:aws:acm:us-east-1:123456789:certificate/abc"
+        }
+      }
+    },
+    {
+      "address": "aws_cloudfront_distribution.insecure",
+      "type": "aws_cloudfront_distribution",
+      "name": "insecure",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "enabled": true,
+          "default_cache_behavior": [
+            {
+              "viewer_protocol_policy": "allow-all"
+            }
+          ],
+          "viewer_certificate": [
+            {
+              "minimum_protocol_version": "TLSv1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "aws_iam_policy.sensitive_no_mfa",
+      "type": "aws_iam_policy",
+      "name": "sensitive_no_mfa",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "name": "sensitive-actions-no-mfa",
+          "policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":[\"iam:CreateUser\",\"kms:Decrypt\"],\"Resource\":\"*\"}]}"
+        }
+      }
+    },
+    {
+      "address": "aws_iam_role.admin_no_mfa",
+      "type": "aws_iam_role",
+      "name": "admin_no_mfa",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "name": "admin-role-no-mfa",
+          "assume_role_policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::123456789012:user/admin\"},\"Action\":\"sts:AssumeRole\"}]}"
+        }
+      }
+    },
+    {
+      "address": "aws_secretsmanager_secret.no_cmk",
+      "type": "aws_secretsmanager_secret",
+      "name": "no_cmk",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "name": "secret-without-cmk",
+          "id": "secret-12345"
+        }
+      }
+    },
+    {
+      "address": "aws_kms_key.no_rotation",
+      "type": "aws_kms_key",
+      "name": "no_rotation",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "description": "KMS key without rotation",
+          "deletion_window_in_days": 7,
+          "enable_key_rotation": false
+        }
+      }
+    },
+    {
+      "address": "aws_ssm_parameter.insecure_password",
+      "type": "aws_ssm_parameter",
+      "name": "insecure_password",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "name": "/app/database-password",
+          "type": "String",
+          "value": "insecure-password"
+        }
+      }
+    },
+    {
+      "address": "aws_lambda_function.secrets_in_env",
+      "type": "aws_lambda_function",
+      "name": "secrets_in_env",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "function_name": "function-with-secrets",
+          "environment": [
+            {
+              "variables": {
+                "DATABASE_PASSWORD": "super-secret",
+                "API_KEY": "sk-12345"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

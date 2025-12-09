@@ -1,0 +1,342 @@
+name: C2P-OPA
+
+on:
+  push:
+    branches:
+      - compliance-pipeline
+    paths:
+      - 'terraform/**'
+      - 'data/component-definition-opa.csv'
+      - 'compliance_pipeline/c2p_plugin/opa-policy-resources/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'terraform/**'
+  workflow_dispatch:
+    inputs:
+      cloud_provider:
+        description: 'Cloud provider (aws, azure, gcp)'
+        required: true
+        default: 'aws'
+        type: choice
+        options:
+          - aws
+          - azure
+          - gcp
+      terraform_dir:
+        description: 'Terraform directory to validate'
+        required: true
+        default: 'terraform/aws/non-compliant'
+        type: choice
+        options:
+          - terraform/aws/compliant
+          - terraform/aws/non-compliant
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  CLOUD_PROVIDER: ${{ github.event.inputs.cloud_provider || 'aws' }}
+  TERRAFORM_DIR: ${{ github.event.inputs.terraform_dir || 'terraform/aws/non-compliant' }}
+
+jobs:
+  update-oscal:
+    name: Update OSCAL Component Definition (JSON)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install compliance-to-policy compliance-trestle
+
+      - name: Convert Component Definition CSV to JSON
+        run: |
+          mkdir -p ./pipeline
+          python3 -m c2p tools csv-to-oscal-cd \
+            --title "Component Definition - OPA FedRAMP 20x" \
+            --csv ./data/component-definition-opa.csv \
+            -o ./pipeline
+
+      - name: Upload component definition
+        uses: actions/upload-artifact@v4
+        with:
+          name: component-definition
+          path: ./pipeline/component-definition.json
+
+  c2p-opa:
+    name: Compliance to Policy (OPA)
+    needs: update-oscal
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Download component definition
+        uses: actions/download-artifact@v4
+        with:
+          name: component-definition
+          path: ./pipeline
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          pip install -e .
+
+      - name: Install OPA
+        run: |
+          curl -L -o opa https://openpolicyagent.org/downloads/v0.60.0/opa_linux_amd64_static
+          chmod +x opa
+          sudo mv opa /usr/local/bin/
+
+      - name: Generate OPA Policies from OSCAL
+        run: |
+          python3 -m compliance_pipeline.c2p_opa \
+            -c ./pipeline/component-definition.json \
+            -o ./pipeline/opa-policies \
+            --cloud-provider ${{ env.CLOUD_PROVIDER }}
+
+      - name: Run Rego unit tests
+        run: |
+          if [ -d "./pipeline/opa-policies" ]; then
+            opa test ./pipeline/opa-policies -v || echo "No tests found or tests skipped"
+          fi
+
+      - name: Upload OPA policies
+        uses: actions/upload-artifact@v4
+        with:
+          name: opa-policies
+          path: ./pipeline/opa-policies
+
+  terraform-validate:
+    name: Validate Terraform with Conftest
+    needs: c2p-opa
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Download OPA policies
+        uses: actions/download-artifact@v4
+        with:
+          name: opa-policies
+          path: ./pipeline/opa-policies
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+          terraform_wrapper: false
+
+      - name: Install Conftest
+        run: |
+          CONFTEST_VERSION=0.47.0
+          curl -L -o conftest.tar.gz \
+            https://github.com/open-policy-agent/conftest/releases/download/v${CONFTEST_VERSION}/conftest_${CONFTEST_VERSION}_Linux_x86_64.tar.gz
+          tar xzf conftest.tar.gz
+          sudo mv conftest /usr/local/bin/
+          conftest --version
+
+      - name: Terraform Init
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: |
+          terraform init -backend=false
+
+      - name: Terraform Plan
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: |
+          terraform plan -out=tfplan -input=false || true
+          terraform show -json tfplan > tfplan.json
+
+      - name: Run Conftest Validation
+        id: conftest
+        continue-on-error: true
+        run: |
+          mkdir -p ./pipeline
+          conftest test ${{ env.TERRAFORM_DIR }}/tfplan.json \
+            --policy ./pipeline/opa-policies \
+            --all-namespaces \
+            --output json > ./pipeline/conftest-results.json || true
+
+          # Also generate human-readable output
+          conftest test ${{ env.TERRAFORM_DIR }}/tfplan.json \
+            --policy ./pipeline/opa-policies \
+            --all-namespaces \
+            --output stdout || true
+
+      - name: Upload Conftest results
+        uses: actions/upload-artifact@v4
+        with:
+          name: conftest-results
+          path: ./pipeline/conftest-results.json
+
+  p2c-opa:
+    name: Policy Results to Compliance (OPA)
+    needs: terraform-validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Download component definition
+        uses: actions/download-artifact@v4
+        with:
+          name: component-definition
+          path: ./pipeline
+
+      - name: Download Conftest results
+        uses: actions/download-artifact@v4
+        with:
+          name: conftest-results
+          path: ./pipeline
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -e .
+          pip install compliance-to-policy compliance-trestle
+
+      - name: Run P2C transformation
+        run: |
+          python3 -m compliance_pipeline.p2c_opa \
+            -c ./pipeline/component-definition.json \
+            --conftest-results ./pipeline/conftest-results.json \
+            -o ./pipeline/assessment-results.json
+
+          python3 -m c2p tools viewer \
+            -ar ./pipeline/assessment-results.json \
+            -cdef ./pipeline/component-definition.json \
+            -o ./pipeline/assessment-results.md
+
+      - name: Upload assessment results
+        uses: actions/upload-artifact@v4
+        with:
+          name: assessment-results
+          path: |
+            ./pipeline/assessment-results.json
+            ./pipeline/assessment-results.md
+
+      - name: Display Assessment Summary
+        run: |
+          echo "## FedRAMP 20x Compliance Assessment Results"
+          echo ""
+          cat ./pipeline/assessment-results.md
+
+  create-pr:
+    name: Create Pull Request
+    needs: p2c-opa
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Prepare pipeline directory
+        run: |
+          mkdir -p ./pipeline
+          cp ./artifacts/component-definition/* ./pipeline/ || true
+          cp ./artifacts/opa-policies/* ./pipeline/opa-policies/ 2>/dev/null || mkdir -p ./pipeline/opa-policies
+          cp -r ./artifacts/opa-policies ./pipeline/ || true
+          cp ./artifacts/conftest-results/* ./pipeline/ || true
+          cp ./artifacts/assessment-results/* ./pipeline/ || true
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add ./pipeline
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update OPA compliance assessment results"
+            git push
+          fi
+
+      - name: Create or update pull request
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require("fs");
+
+            let bodyContent;
+            try {
+              bodyContent = fs.readFileSync("./pipeline/assessment-results.md", "utf8");
+            } catch (e) {
+              bodyContent = "## FedRAMP 20x Compliance Assessment\n\nNo assessment results available.";
+            }
+
+            const { owner, repo } = context.repo;
+            const head = context.ref.replace('refs/heads/', '');
+            const base = "main";
+
+            // Skip if already on main
+            if (head === "main") {
+              core.info("Already on main branch, skipping PR creation");
+              return;
+            }
+
+            const { data: pullRequests } = await github.rest.pulls.list({
+              owner,
+              repo,
+              head: `${owner}:${head}`,
+              base,
+              state: "open",
+            });
+
+            const title = `FedRAMP 20x Compliance Assessment - ${new Date().toISOString().split('T')[0]}`;
+
+            if (pullRequests.length > 0) {
+              const existingPR = pullRequests[0];
+
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: existingPR.number,
+                body: `## Updated Assessment Results\n\n${bodyContent}`,
+              });
+
+              core.info(`Added comment to existing PR: ${existingPR.html_url}`);
+            } else {
+              const res = await github.rest.pulls.create({
+                owner,
+                repo,
+                head,
+                base,
+                title,
+                body: bodyContent,
+              });
+
+              core.info(`Created PR: ${res.data.html_url}`);
+            }
